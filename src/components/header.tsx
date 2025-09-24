@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Globe, LogOut, User, LayoutDashboard } from 'lucide-react';
+import { LogOut, User, LayoutDashboard } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Link from 'next/link';
 import { Logo } from '@/app/logo';
@@ -24,20 +24,6 @@ export function Header() {
         <Logo />
       </div>
       <div className="flex items-center gap-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="flex items-center gap-2">
-              <Globe className="h-4 w-4" />
-              <span>EN</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>English</DropdownMenuItem>
-            <DropdownMenuItem disabled>Español (coming soon)</DropdownMenuItem>
-            <DropdownMenuItem disabled>Français (coming soon)</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-9 w-9 rounded-full">
