@@ -45,13 +45,13 @@ const prompt = ai.definePrompt({
   name: 'speechAnalysisForCognitiveDeclinePrompt',
   input: {schema: SpeechAnalysisForCognitiveDeclineInputSchema},
   output: {schema: SpeechAnalysisForCognitiveDeclineOutputSchema},
-  prompt: `You are an expert in analyzing speech patterns for indicators of cognitive decline. Analyze the provided speech transcript and audio data (if available) for indicators of cognitive decline, such as pauses, word choice, and sentence structure. Provide a detailed analysis of the speech patterns.
+  prompt: `You are an expert in analyzing speech patterns for indicators of cognitive decline.
+First, transcribe the provided audio. Then, analyze the transcript for indicators of cognitive decline, such as pauses, word choice, and sentence structure. If a transcript is already provided, use that as the primary source.
 
-Transcript: {{{transcript}}}
 Audio: {{media url=audioDataUri}}
+Transcript: {{{transcript}}}
 
-Based on the transcript and audio, identify and explain any indicators of cognitive decline.
-`, //Improved prompt
+Based on your analysis, provide a detailed summary of any speech patterns that could indicate cognitive decline.`,
 });
 
 const analyzeSpeechForCognitiveDeclineFlow = ai.defineFlow(
