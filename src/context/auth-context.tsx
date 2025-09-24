@@ -18,7 +18,6 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
-import { useRouter } from 'next/navigation';
 
 interface UserProfile {
   uid: string;
@@ -43,16 +42,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
       if (user) {
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        if (userDoc.exists()) {
-          setUserProfile(userDoc.data() as UserProfile);
-        }
+        // The user object from onAuthStateChanged has the necessary profile info
+        setUserProfile({
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+        });
       } else {
         setUserProfile(null);
       }
@@ -72,7 +72,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: user.email,
       displayName: fullName,
     };
-    await setDoc(doc(db, 'users', user.uid), profile);
+    await setDoc(doc(db, 'users', user.uid), {
+        // Storing only non-sensitive data or data needed for specific queries
+        uid: user.uid,
+        displayName: fullName,
+        email: user.email,
+    });
     setUserProfile(profile);
   };
 
@@ -88,18 +93,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) {
       // Optimistically update local state
       setUserProfile((prev) => prev ? { ...prev, displayName, email } : null);
-  
-      await updateFirebaseProfile(user, { displayName });
-      await updateDoc(doc(db, 'users', user.uid), { displayName, email });
+      
+      const updatePromises = [];
+      
+      if (user.displayName !== displayName) {
+        updatePromises.push(updateFirebaseProfile(user, { displayName }));
+      }
+      
+      updatePromises.push(updateDoc(doc(db, 'users', user.uid), { displayName, email }));
+
+      await Promise.all(updatePromises);
+
+      // Re-sync with the user object to get the latest state
+      if(auth.currentUser){
+        setUser(auth.currentUser);
+        setUserProfile({
+          uid: auth.currentUser.uid,
+          email: auth.currentUser.email,
+          displayName: auth.currentUser.displayName
+        })
+      }
+
+
     } else {
         throw new Error("No user is signed in.");
     }
   };
 
   const deleteAccount = async () => {
-    if (user) {
-      await deleteDoc(doc(db, 'users', user.uid));
-      await deleteFirebaseUser(user);
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      await deleteDoc(doc(db, 'users', currentUser.uid));
+      await deleteFirebaseUser(currentUser);
     } else {
         throw new Error("No user is signed in to delete.");
     }
@@ -111,7 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading,
     signup,
     login,
-    logout,
+logout,
     updateUserProfile,
     deleteAccount
   };
