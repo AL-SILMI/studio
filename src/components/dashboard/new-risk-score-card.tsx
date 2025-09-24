@@ -12,28 +12,39 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { getRiskScore, type RiskScoreResult } from '@/app/actions';
+import { getRiskScore, type RiskScoreResult, type SpeechAnalysisResult } from '@/app/actions';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-export function NewRiskScoreCard() {
+export function NewRiskScoreCard({
+  speechAnalysis,
+  cognitivePerformance,
+}: {
+  speechAnalysis: SpeechAnalysisResult['data'] | null;
+  cognitivePerformance: string | null;
+}) {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<RiskScoreResult['data'] | null>(null);
   const { toast } = useToast();
 
   const handleGenerateScore = async () => {
+    if (!cognitivePerformance || !speechAnalysis) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Please complete all assessments before generating a risk score.',
+      });
+      return;
+    }
+    
     setIsLoading(true);
     setResult(null);
 
-    const cognitiveTaskPerformance =
-      'User completed memory task in 45 seconds with 2 errors. Pattern recognition was slow but accurate.';
-    const speechPatterns =
-      'Speech analysis shows frequent pauses and some word-finding difficulty.';
     const behavioralData =
       'User interacts with the app twice a week. Task completion times have increased by 15% over the last month.';
 
     const response = await getRiskScore(
-      cognitiveTaskPerformance,
-      speechPatterns,
+      cognitivePerformance,
+      speechAnalysis.cognitiveDeclineIndicators,
       behavioralData
     );
 
@@ -59,6 +70,8 @@ export function NewRiskScoreCard() {
   const handleReset = () => {
     setResult(null);
   }
+
+  const isButtonDisabled = isLoading || !cognitivePerformance || !speechAnalysis;
 
 
   return (
@@ -113,7 +126,7 @@ export function NewRiskScoreCard() {
       ) : (
         <Button
           onClick={handleGenerateScore}
-          disabled={isLoading}
+          disabled={isButtonDisabled}
           className="w-full"
         >
           {isLoading ? (

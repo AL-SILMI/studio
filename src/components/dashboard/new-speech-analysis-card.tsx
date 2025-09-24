@@ -17,7 +17,11 @@ import { analyzeSpeech, type SpeechAnalysisResult } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-export function NewSpeechAnalysisCard() {
+export function NewSpeechAnalysisCard({
+  onAnalysisComplete,
+}: {
+  onAnalysisComplete: (result: SpeechAnalysisResult['data']) => void;
+}) {
   const [activeTab, setActiveTab] = useState('audio');
   const [transcript, setTranscript] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -38,6 +42,7 @@ export function NewSpeechAnalysisCard() {
 
     if (response.success) {
       setAnalysisResult(response.data);
+      onAnalysisComplete(response.data);
     } else {
       toast({
         variant: 'destructive',

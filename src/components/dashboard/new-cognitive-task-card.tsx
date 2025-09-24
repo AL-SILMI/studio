@@ -25,7 +25,11 @@ const WORDS_TO_MEMORIZE = [
 
 type GameState = 'idle' | 'displaying' | 'recalling' | 'analyzing' | 'results';
 
-export function NewCognitiveTaskCard() {
+export function NewCognitiveTaskCard({
+  onAnalysisComplete,
+}: {
+  onAnalysisComplete: (performanceSummary: string) => void;
+}) {
   const [gameState, setGameState] = useState<GameState>('idle');
   const [timeLeft, setTimeLeft] = useState(10);
   const [recalledWords, setRecalledWords] = useState('');
@@ -90,6 +94,8 @@ export function NewCognitiveTaskCard() {
     setCorrectlyRecalled(correctWords);
 
     const performanceSummary = `User was asked to memorize ${WORDS_TO_MEMORIZE.length} words. They took ${finalRecallTime.toFixed(2)} seconds to recall them. They correctly recalled ${correctCount} words. The recalled words were: ${correctWords.join(', ')}.`;
+
+    onAnalysisComplete(performanceSummary);
 
     const response = await analyzeCognitiveTask(performanceSummary);
 
