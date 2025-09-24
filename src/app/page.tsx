@@ -33,11 +33,11 @@ export default function LandingPage() {
                   </div>
                 </div>
                 <Image
-                  src="https://picsum.photos/seed/1/600/400"
+                  src="https://picsum.photos/seed/brain/600/400"
                   width={600}
                   height={400}
                   alt="Hero"
-                  data-ai-hint="brain health"
+                  data-ai-hint="sketched brain"
                   className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last lg:aspect-square"
                 />
               </div>
