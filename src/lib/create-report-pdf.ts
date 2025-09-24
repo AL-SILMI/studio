@@ -46,11 +46,12 @@ export function createReportPdf(data: ReportData) {
     doc.setFont('helvetica', 'bold');
     const riskScore = riskScoreData.riskScore.toString();
     const riskScoreWidth = doc.getTextWidth(riskScore);
-    doc.text(riskScore, 24 - riskScoreWidth / 2, yPosition + 10);
+    const riskScoreX = 14;
+    doc.text(riskScore, riskScoreX, yPosition + 10);
     
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
-    doc.text('/ 100', 30, yPosition + 10);
+    doc.text('/ 100', riskScoreX + riskScoreWidth, yPosition + 10);
 
     const riskFactorsText = doc.splitTextToSize(riskScoreData.riskFactors, pageWidth - 60);
     doc.text('Key Risk Factors:', 50, yPosition);
