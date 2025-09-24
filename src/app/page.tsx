@@ -28,7 +28,7 @@ export default function LandingPage() {
                   </div>
                   <div className="flex flex-col gap-2 min-[400px]:flex-row">
                     <Button asChild size="lg">
-                      <Link href="/dashboard">Get Started Now</Link>
+                      <Link href="/login">Get Started Now</Link>
                     </Button>
                   </div>
                 </div>
@@ -110,7 +110,7 @@ export default function LandingPage() {
               </div>
               <div className="mx-auto w-full max-w-sm space-y-2">
                 <Button asChild size="lg" className="w-full">
-                  <Link href="/dashboard">Start Your Free Screening</Link>
+                  <Link href="/login">Start Your Free Screening</Link>
                 </Button>
               </div>
             </div>
