@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Loader2, ShieldCheck } from 'lucide-react';
+import { Loader2, ShieldCheck, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -14,6 +14,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { getRiskScore, type RiskScoreResult, type SpeechAnalysisResult } from '@/app/actions';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { createReportPdf } from '@/lib/create-report-pdf';
 
 export function NewRiskScoreCard({
   speechAnalysis,
@@ -60,6 +61,22 @@ export function NewRiskScoreCard({
 
     setIsLoading(false);
   };
+
+  const handleDownloadReport = () => {
+    if (!result || !speechAnalysis || !cognitivePerformance) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Cannot generate report without complete data.',
+      });
+      return;
+    }
+    createReportPdf({
+        riskScoreData: result,
+        speechAnalysisData: speechAnalysis,
+        cognitivePerformanceData: cognitivePerformance,
+    });
+  }
   
     const getRiskColor = (score: number) => {
         if (score > 75) return 'bg-destructive text-destructive-foreground';
@@ -118,11 +135,17 @@ export function NewRiskScoreCard({
         )}
         
       </CardContent>
-      <CardFooter>
+      <CardFooter className='flex-col gap-2'>
       {result ? (
-          <Button onClick={handleReset} className="w-full">
-            Calculate Again
-          </Button>
+        <>
+            <Button onClick={handleReset} className="w-full">
+                Calculate Again
+            </Button>
+            <Button onClick={handleDownloadReport} variant='outline' className="w-full">
+                <Download className='mr-2 h-4 w-4'/>
+                Download Report
+            </Button>
+        </>
       ) : (
         <Button
           onClick={handleGenerateScore}
