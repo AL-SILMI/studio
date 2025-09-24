@@ -1,5 +1,4 @@
 'use client';
-import Image from 'next/image';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,13 +10,10 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { LogOut, User, LayoutDashboard } from 'lucide-react';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Link from 'next/link';
 import { Logo } from '@/app/logo';
 
 export function Header() {
-  const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
-
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6 lg:px-8">
       <div className="flex items-center gap-2">
@@ -28,13 +24,6 @@ export function Header() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-9 w-9 rounded-full">
               <Avatar className="h-9 w-9">
-                {userAvatar && (
-                  <AvatarImage
-                    src={userAvatar.imageUrl}
-                    alt="User Avatar"
-                    data-ai-hint={userAvatar.imageHint}
-                  />
-                )}
                 <AvatarFallback>U</AvatarFallback>
               </Avatar>
             </Button>
