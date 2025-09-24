@@ -10,11 +10,19 @@ import {
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Edit, FileAudio, Mic, Upload } from 'lucide-react';
+import { Edit, FileAudio, Mic, Upload, Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { Textarea } from '@/components/ui/textarea';
 
 export function NewSpeechAnalysisCard() {
   const [activeTab, setActiveTab] = useState('audio');
+  const [transcript, setTranscript] = useState('');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  const handleAnalyzeTranscript = async () => {
+    //
+  };
+
   return (
     <Card className="flex flex-col">
       <CardHeader>
@@ -59,11 +67,18 @@ export function NewSpeechAnalysisCard() {
           </TabsContent>
           <TabsContent
             value="transcript"
-            className="flex-grow flex flex-col items-center justify-center text-center p-6"
+            className="flex-grow flex flex-col p-6 space-y-4"
           >
-            <p className="text-muted-foreground">
-              Transcript analysis coming soon.
+            <p className="text-muted-foreground text-sm">
+              Enter a transcript of the user's speech to analyze it for
+              cognitive indicators.
             </p>
+            <Textarea
+              placeholder="Enter transcript here..."
+              className="flex-grow"
+              value={transcript}
+              onChange={(e) => setTranscript(e.target.value)}
+            />
           </TabsContent>
         </Tabs>
       </CardContent>
@@ -76,6 +91,21 @@ export function NewSpeechAnalysisCard() {
           <Button variant="outline" className="w-full">
             <Upload className="mr-2 h-4 w-4" />
             Upload File
+          </Button>
+        </CardFooter>
+      )}
+      {activeTab === 'transcript' && (
+        <CardFooter className="flex justify-end">
+          <Button
+            onClick={handleAnalyzeTranscript}
+            disabled={isAnalyzing || !transcript.trim()}
+          >
+            {isAnalyzing ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Edit className="mr-2 h-4 w-4" />
+            )}
+            {isAnalyzing ? 'Analyzing...' : 'Analyze Transcript'}
           </Button>
         </CardFooter>
       )}
