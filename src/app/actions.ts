@@ -8,6 +8,11 @@ import {
   analyzeSpeechForCognitiveDecline,
   type SpeechAnalysisForCognitiveDeclineOutput,
 } from '@/ai/flows/speech-analysis-for-cognitive-decline';
+import {
+  analyzeCognitiveTaskPerformance,
+  type AnalyzeCognitiveTaskPerformanceOutput,
+} from '@/ai/flows/analyze-cognitive-task-performance';
+
 
 export type RiskScoreResult =
   | { success: true; data: GenerateDementiaRiskScoreOutput }
@@ -56,5 +61,24 @@ export async function analyzeSpeech(
   } catch (error) {
     console.error('Error analyzing speech:', error);
     return { success: false, error: 'An unexpected error occurred during speech analysis. Please try again later.' };
+  }
+}
+
+
+export type CognitiveAnalysisResult =
+  | { success: true; data: AnalyzeCognitiveTaskPerformanceOutput }
+  | { success: false; error: string };
+
+export async function analyzeCognitiveTask(
+  performanceSummary: string
+): Promise<CognitiveAnalysisResult> {
+  try {
+    const result = await analyzeCognitiveTaskPerformance({
+      performanceSummary,
+    });
+    return { success: true, data: result };
+  } catch (error) {
+    console.error('Error analyzing cognitive task:', error);
+    return { success: false, error: 'An unexpected error occurred during the analysis. Please try again later.' };
   }
 }
