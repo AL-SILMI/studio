@@ -2,13 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  BrainCircuit,
-  LayoutDashboard,
-  Mic,
-  Puzzle,
-  LineChart,
-} from 'lucide-react';
+import { LayoutDashboard } from 'lucide-react';
 
 import {
   SidebarMenu,
@@ -22,26 +16,6 @@ const links = [
     label: 'Dashboard',
     icon: LayoutDashboard,
   },
-  {
-    href: '/tasks',
-    label: 'Cognitive Tasks',
-    icon: BrainCircuit,
-    subLinks: [
-      { href: '/tasks/memory', label: 'Memory Game' },
-      { href: '/tasks/pattern', label: 'Pattern Game' },
-    ],
-  },
-  {
-    href: '/speech',
-    label: 'Speech Analysis',
-    icon: Mic,
-  },
-  {
-    href: '/history',
-    label: 'Performance History',
-    icon: LineChart,
-    disabled: true,
-  },
 ];
 
 export function SidebarNav() {
@@ -54,10 +28,9 @@ export function SidebarNav() {
           <SidebarMenuButton
             asChild
             isActive={pathname === link.href}
-            disabled={link.disabled}
             tooltip={link.label}
           >
-            <Link href={link.disabled ? '#' : link.href}>
+            <Link href={link.href}>
               <link.icon />
               <span>{link.label}</span>
             </Link>
