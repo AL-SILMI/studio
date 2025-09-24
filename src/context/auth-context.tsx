@@ -107,15 +107,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
   
   const updateUserProfile = async (name: string, email: string) => {
-    if (!user) throw new Error("Not authenticated");
+    if (!user || !userProfile) throw new Error("Not authenticated");
     
-    await updateProfile(user, { displayName: name });
-    await updateDoc(doc(db, 'users', user.uid), { displayName: name, email });
-    
-    //
-    const userDoc = await getDoc(doc(db, 'users', user.uid));
-    if (userDoc.exists()) {
-      setUserProfile(userDoc.data() as UserProfile);
+    // Optimistic update
+    setUserProfile({ ...userProfile, displayName: name, email });
+
+    try {
+        await updateProfile(user, { displayName: name });
+        await updateDoc(doc(db, 'users', user.uid), { displayName: name, email });
+    } catch (error) {
+        // If server update fails, revert the change
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+            setUserProfile(userDoc.data() as UserProfile);
+        }
+        throw error;
     }
   };
   
