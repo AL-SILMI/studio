@@ -42,7 +42,7 @@ The user was shown a list of words and asked to recall them.
 
 Performance Summary: {{{performanceSummary}}}
 
-Based on this summary, provide a concise, encouraging, and easy-to-understand analysis of their performance. Explain what the score means in the context of a short-term memory test. Do not be alarming, but provide gentle feedback. Keep it to 2-3 sentences.
+Based on this summary, provide a concise, encouraging, and easy-to-understand analysis of their performance. Explain what the score means in the context of a short-term memory test. Do not be alarming, but provide gentle feedback. Keep it to 2-3 sentences. Return the result in JSON format.
 `,
 });
 

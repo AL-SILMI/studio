@@ -51,7 +51,7 @@ First, transcribe the provided audio. Then, analyze the transcript for indicator
 Audio: {{media url=audioDataUri}}
 Transcript: {{{transcript}}}
 
-Based on your analysis, provide a detailed summary of any speech patterns that could indicate cognitive decline.`,
+Based on your analysis, provide a detailed summary of any speech patterns that could indicate cognitive decline. Return the result in JSON format.`,
 });
 
 const analyzeSpeechForCognitiveDeclineFlow = ai.defineFlow(

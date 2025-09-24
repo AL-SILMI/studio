@@ -50,7 +50,7 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateDementiaRiskScoreOutputSchema},
   prompt: `You are an AI assistant that analyzes user data to generate a dementia risk score.
 
-  Based on the provided cognitive task performance, speech patterns, and behavioral data, generate a dementia risk score between 0 and 100 (inclusive), where a higher score indicates a higher risk of dementia.  Also, provide a summary of the key risk factors contributing to the score, and recommendations for further evaluation or intervention.
+  Based on the provided cognitive task performance, speech patterns, and behavioral data, generate a dementia risk score between 0 and 100 (inclusive), where a higher score indicates a higher risk of dementia. Also, provide a summary of the key risk factors contributing to the score, and recommendations for further evaluation or intervention.
 
 Cognitive Task Performance: {{{cognitiveTaskPerformance}}}
 Speech Patterns: {{{speechPatterns}}}
