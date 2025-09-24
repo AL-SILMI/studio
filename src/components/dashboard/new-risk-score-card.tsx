@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getRiskScore, type RiskScoreResult, type SpeechAnalysisResult } from '@/app/actions';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { createReportPdf } from '@/lib/create-report-pdf';
+import { useAuth } from '@/context/auth-context';
 
 export function NewRiskScoreCard({
   speechAnalysis,
@@ -26,6 +27,7 @@ export function NewRiskScoreCard({
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<RiskScoreResult['data'] | null>(null);
   const { toast } = useToast();
+  const { userProfile } = useAuth();
 
   const handleGenerateScore = async () => {
     if (!cognitivePerformance || !speechAnalysis) {
@@ -72,6 +74,7 @@ export function NewRiskScoreCard({
       return;
     }
     createReportPdf({
+        userName: userProfile?.displayName || 'N/A',
         riskScoreData: result,
         speechAnalysisData: speechAnalysis,
         cognitivePerformanceData: cognitivePerformance,

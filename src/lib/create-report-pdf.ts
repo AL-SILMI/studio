@@ -5,6 +5,7 @@ import { GenerateDementiaRiskScoreOutput } from '@/ai/flows/generate-dementia-ri
 import { format } from 'date-fns';
 
 interface ReportData {
+    userName: string;
     riskScoreData: GenerateDementiaRiskScoreOutput;
     speechAnalysisData: SpeechAnalysisForCognitiveDeclineOutput;
     cognitivePerformanceData: string;
@@ -12,7 +13,7 @@ interface ReportData {
 
 export function createReportPdf(data: ReportData) {
     const doc = new jsPDF();
-    const { riskScoreData, speechAnalysisData, cognitivePerformanceData } = data;
+    const { userName, riskScoreData, speechAnalysisData, cognitivePerformanceData } = data;
 
     const pageHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight();
     const pageWidth = doc.internal.pageSize.width || doc.internal.pageSize.getWidth();
@@ -26,8 +27,14 @@ export function createReportPdf(data: ReportData) {
     doc.setFont('helvetica', 'normal');
     const reportDate = format(new Date(), 'MMMM d, yyyy');
     doc.text(`Date: ${reportDate}`, pageWidth / 2, 30, { align: 'center' });
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Patient Name:', 14, 40);
+    doc.setFont('helvetica', 'normal');
+    doc.text(userName, 45, 40);
 
-    let yPosition = 45;
+
+    let yPosition = 55;
 
     // --- Risk Score Section ---
     doc.setFontSize(18);
