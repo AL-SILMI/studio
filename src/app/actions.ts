@@ -40,9 +40,13 @@ export async function analyzeSpeech(
   audioDataUri: string,
   transcript: string
 ): Promise<SpeechAnalysisResult> {
-  if (!audioDataUri.startsWith('data:audio/webm;base64,')) {
-    return { success: false, error: 'Invalid audio data format.' };
+  if (!audioDataUri) {
+     return { success: false, error: 'Audio data is missing.' };
   }
+  if (!transcript) {
+    return { success: false, error: 'Transcript is missing.' };
+  }
+  
   try {
     const result = await analyzeSpeechForCognitiveDecline({
       audioDataUri,

@@ -10,18 +10,49 @@ import {
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Edit, FileAudio, Mic, Upload, Loader2 } from 'lucide-react';
+import { Edit, FileAudio, Mic, Upload, Loader2, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
+import { analyzeSpeech, type SpeechAnalysisResult } from '@/app/actions';
+import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export function NewSpeechAnalysisCard() {
   const [activeTab, setActiveTab] = useState('audio');
   const [transcript, setTranscript] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] =
+    useState<SpeechAnalysisResult['data'] | null>(null);
+  const { toast } = useToast();
 
   const handleAnalyzeTranscript = async () => {
-    //
+    setIsAnalyzing(true);
+    setAnalysisResult(null);
+
+    // This is a dummy audio URI since we only have a transcript.
+    // The backend expects this, but it won't be used for transcript-only analysis.
+    const dummyAudioDataUri =
+      'data:audio/webm;base64,';
+
+    const response = await analyzeSpeech(dummyAudioDataUri, transcript);
+
+    if (response.success) {
+      setAnalysisResult(response.data);
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Analysis Failed',
+        description: response.error,
+      });
+    }
+
+    setIsAnalyzing(false);
   };
+  
+  const handleReset = () => {
+    setTranscript('');
+    setAnalysisResult(null);
+  }
 
   return (
     <Card className="flex flex-col">
@@ -39,7 +70,10 @@ export function NewSpeechAnalysisCard() {
         <Tabs
           defaultValue="audio"
           className="flex-grow flex flex-col"
-          onValueChange={setActiveTab}
+          onValueChange={(value) => {
+            setActiveTab(value);
+            handleReset();
+          }}
         >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="audio">
@@ -69,33 +103,50 @@ export function NewSpeechAnalysisCard() {
             value="transcript"
             className="flex-grow flex flex-col p-6 space-y-4"
           >
-            <p className="text-muted-foreground text-sm">
-              Enter a transcript of the user's speech to analyze it for
-              cognitive indicators.
-            </p>
-            <Textarea
-              placeholder="Enter transcript here..."
-              className="flex-grow"
-              value={transcript}
-              onChange={(e) => setTranscript(e.target.value)}
-            />
+            {analysisResult ? (
+              <Alert>
+                <AlertTitle>Analysis Complete</AlertTitle>
+                <AlertDescription className="prose prose-sm dark:prose-invert">
+                  {analysisResult.cognitiveDeclineIndicators}
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <>
+                <p className="text-muted-foreground text-sm">
+                  Enter a transcript of the user's speech to analyze it for
+                  cognitive indicators.
+                </p>
+                <Textarea
+                  placeholder="Enter transcript here..."
+                  className="flex-grow"
+                  value={transcript}
+                  onChange={(e) => setTranscript(e.target.value)}
+                  disabled={isAnalyzing}
+                />
+              </>
+            )}
           </TabsContent>
         </Tabs>
       </CardContent>
-      {activeTab === 'audio' && (
-        <CardFooter className="flex gap-4">
-          <Button className="w-full">
-            <Mic className="mr-2 h-4 w-4" />
-            Start Recording
+
+      <CardFooter className="flex justify-end">
+        {activeTab === 'audio' ? (
+          <div className="flex gap-4 w-full">
+            <Button className="w-full">
+              <Mic className="mr-2 h-4 w-4" />
+              Start Recording
+            </Button>
+            <Button variant="outline" className="w-full">
+              <Upload className="mr-2 h-4 w-4" />
+              Upload File
+            </Button>
+          </div>
+        ) : analysisResult ? (
+          <Button onClick={handleReset} variant="outline">
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Analyze Another
           </Button>
-          <Button variant="outline" className="w-full">
-            <Upload className="mr-2 h-4 w-4" />
-            Upload File
-          </Button>
-        </CardFooter>
-      )}
-      {activeTab === 'transcript' && (
-        <CardFooter className="flex justify-end">
+        ) : (
           <Button
             onClick={handleAnalyzeTranscript}
             disabled={isAnalyzing || !transcript.trim()}
@@ -107,8 +158,8 @@ export function NewSpeechAnalysisCard() {
             )}
             {isAnalyzing ? 'Analyzing...' : 'Analyze Transcript'}
           </Button>
-        </CardFooter>
-      )}
+        )}
+      </CardFooter>
     </Card>
   );
 }
