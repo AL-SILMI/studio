@@ -10,10 +10,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Globe, LogOut, User, LayoutDashboard } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Link from 'next/link';
+import { Logo } from '@/app/logo';
 
 export function Header() {
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
@@ -21,8 +21,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6 lg:px-8">
       <div className="flex items-center gap-2">
-        <SidebarTrigger className="md:hidden" />
-        <h1 className="text-lg font-semibold">Dashboard</h1>
+        <Logo />
       </div>
       <div className="flex items-center gap-4">
         <DropdownMenu>
