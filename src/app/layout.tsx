@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
+import { AuthProvider } from '@/context/auth-context';
 
 export const metadata: Metadata = {
   title: 'CogniScreen - Early Dementia Detection',
@@ -25,10 +26,12 @@ export default function RootLayout({
         />
       </head>
       <body className={cn('font-body antialiased bg-background')}>
-        <div className="relative flex min-h-screen w-full flex-col">
-          <main className="flex-1">{children}</main>
-        </div>
-        <Toaster />
+        <AuthProvider>
+          <div className="relative flex min-h-screen w-full flex-col">
+            <main className="flex-1">{children}</main>
+          </div>
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );
