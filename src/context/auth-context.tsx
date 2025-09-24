@@ -12,28 +12,28 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
-  updateProfile,
+  updateProfile as updateFirebaseProfile,
   deleteUser as deleteFirebaseUser,
   type User,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 interface UserProfile {
   uid: string;
-  email: string;
-  displayName: string;
+  email: string | null;
+  displayName: string | null;
 }
 
 interface AuthContextType {
   user: User | null;
   userProfile: UserProfile | null;
   loading: boolean;
-  login: (email: string, pass: string) => Promise<any>;
-  signup: (email: string, pass: string, name: string) => Promise<any>;
+  signup: (email: string, password: string, fullName: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  updateUserProfile: (name: string, email: string) => Promise<void>;
+  updateUserProfile: (displayName: string, email: string) => Promise<void>;
   deleteAccount: () => Promise<void>;
 }
 
@@ -44,18 +44,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const pathname = usePathname();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setUser(user);
       if (user) {
-        setUser(user);
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
           setUserProfile(userDoc.data() as UserProfile);
         }
       } else {
-        setUser(null);
         setUserProfile(null);
       }
       setLoading(false);
@@ -64,95 +62,61 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (loading) return;
+  const signup = async (email: string, password: string, fullName: string) => {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    await updateFirebaseProfile(user, { displayName: fullName });
 
-    const isAuthRoute = ['/login', '/signup'].includes(pathname);
-    const isProtectedRoute = ['/dashboard', '/profile'].includes(pathname);
-
-    if (!user && isProtectedRoute) {
-      router.push('/login');
-    } else if (user && isAuthRoute) {
-      router.push('/dashboard');
-    }
-  }, [user, loading, pathname, router]);
-
-
-  const login = (email: string, pass: string) => {
-    return signInWithEmailAndPassword(auth, email, pass);
-  };
-
-  const signup = async (email: string, pass: string, name: string) => {
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      pass
-    );
-    await updateProfile(userCredential.user, { displayName: name });
-    
-    const newUserProfile: UserProfile = {
-        uid: userCredential.user.uid,
-        email: userCredential.user.email!,
-        displayName: name,
+    const profile: UserProfile = {
+      uid: user.uid,
+      email: user.email,
+      displayName: fullName,
     };
-
-    await setDoc(doc(db, 'users', userCredential.user.uid), newUserProfile);
-    setUser(userCredential.user);
-    setUserProfile(newUserProfile);
-    return userCredential;
+    await setDoc(doc(db, 'users', user.uid), profile);
+    setUserProfile(profile);
   };
 
-  const logout = () => {
-    return signOut(auth);
+  const login = async (email: string, password: string) => {
+    await signInWithEmailAndPassword(auth, email, password);
   };
+
+  const logout = async () => {
+    await signOut(auth);
+  };
+
+  const updateUserProfile = async (displayName: string, email: string) => {
+    if (user) {
+      // Optimistically update local state
+      setUserProfile((prev) => prev ? { ...prev, displayName, email } : null);
   
-  const updateUserProfile = async (name: string, email: string) => {
-    if (!user || !userProfile) throw new Error("Not authenticated");
-    
-    // Optimistic update
-    setUserProfile({ ...userProfile, displayName: name, email });
-
-    try {
-        await updateProfile(user, { displayName: name });
-        await updateDoc(doc(db, 'users', user.uid), { displayName: name, email });
-    } catch (error) {
-        // If server update fails, revert the change
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        if (userDoc.exists()) {
-            setUserProfile(userDoc.data() as UserProfile);
-        }
-        throw error;
+      await updateFirebaseProfile(user, { displayName });
+      await updateDoc(doc(db, 'users', user.uid), { displayName, email });
+    } else {
+        throw new Error("No user is signed in.");
     }
   };
-  
+
   const deleteAccount = async () => {
-    if (!user) throw new Error("Not authenticated");
-    
-    try {
+    if (user) {
       await deleteDoc(doc(db, 'users', user.uid));
       await deleteFirebaseUser(user);
-    } catch (error) {
-      console.error("Error deleting account:", error);
-      throw error;
+    } else {
+        throw new Error("No user is signed in to delete.");
     }
-  }
+  };
 
   const value = {
     user,
     userProfile,
     loading,
-    login,
     signup,
+    login,
     logout,
     updateUserProfile,
     deleteAccount
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
