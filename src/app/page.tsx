@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BrainCircuit, Mic, ShieldCheck } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Logo } from './logo';
 import { Header } from '@/components/header';
@@ -32,14 +31,11 @@ export default function LandingPage() {
                     </Button>
                   </div>
                 </div>
-                <Image
-                  src="https://picsum.photos/seed/brain/600/400"
-                  width={600}
-                  height={400}
-                  alt="Hero"
-                  data-ai-hint="sketched brain"
-                  className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last lg:aspect-square"
-                />
+                <div className="mx-auto flex aspect-video items-center justify-center overflow-hidden rounded-xl object-cover sm:w-full lg:order-last lg:aspect-square">
+                  <Logo
+                    className="[&>svg]:h-48 [&>svg]:w-48 [&>span]:text-5xl"
+                  />
+                </div>
               </div>
             </div>
           </section>
