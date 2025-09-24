@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from 'next/link';
 import {
   Card,
   CardContent,
@@ -28,8 +28,8 @@ export function NewCognitiveTaskCard() {
           Test your memory and pattern recognition skills.
         </p>
       </CardContent>
-      <CardFooter>
-        <Button asChild className="w-full">
+      <CardFooter className="justify-end">
+        <Button asChild>
           <Link href="/tasks/memory">Start Task</Link>
         </Button>
       </CardFooter>
