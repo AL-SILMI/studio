@@ -32,6 +32,9 @@ export function NewCognitiveTaskCard() {
   const [score, setScore] = useState(0);
   const [correctlyRecalled, setCorrectlyRecalled] = useState<string[]>([]);
   const [analysis, setAnalysis] = useState<string | null>(null);
+  const [recallStartTime, setRecallStartTime] = useState<number | null>(null);
+  const [recallTime, setRecallTime] = useState<number | null>(null);
+
   const { toast } = useToast();
 
   useEffect(() => {
@@ -44,6 +47,7 @@ export function NewCognitiveTaskCard() {
       return () => clearTimeout(timer);
     } else {
       setGameState('recalling');
+      setRecallStartTime(Date.now());
     }
   }, [gameState, timeLeft]);
 
@@ -54,9 +58,17 @@ export function NewCognitiveTaskCard() {
     setScore(0);
     setCorrectlyRecalled([]);
     setAnalysis(null);
+    setRecallStartTime(null);
+    setRecallTime(null);
   };
 
   const handleSubmitRecall = async () => {
+    let finalRecallTime = 0;
+    if (recallStartTime) {
+      finalRecallTime = (Date.now() - recallStartTime) / 1000;
+      setRecallTime(finalRecallTime);
+    }
+
     setGameState('analyzing');
     const userWords = recalledWords.split(/[\s,]+/).filter(w => w.length > 0).map(w => w.toLowerCase());
     const originalWords = WORDS_TO_MEMORIZE.map(w => w.toLowerCase());
@@ -77,7 +89,7 @@ export function NewCognitiveTaskCard() {
     setScore(correctCount);
     setCorrectlyRecalled(correctWords);
 
-    const performanceSummary = `User was asked to memorize ${WORDS_TO_MEMORIZE.length} words. They correctly recalled ${correctCount} words. The recalled words were: ${correctWords.join(', ')}.`;
+    const performanceSummary = `User was asked to memorize ${WORDS_TO_MEMORIZE.length} words. They took ${finalRecallTime.toFixed(2)} seconds to recall them. They correctly recalled ${correctCount} words. The recalled words were: ${correctWords.join(', ')}.`;
 
     const response = await analyzeCognitiveTask(performanceSummary);
 
@@ -166,7 +178,7 @@ export function NewCognitiveTaskCard() {
             <CardContent className="flex-grow flex flex-col items-center justify-center text-center gap-4">
               <Award className="h-12 w-12 text-yellow-500" />
               <h2 className="text-2xl font-bold">Task Complete!</h2>
-              <p className="text-muted-foreground">You remembered {score} out of {WORDS_TO_MEMORIZE.length} words correctly.</p>
+              <p className="text-muted-foreground">You remembered {score} out of {WORDS_TO_MEMORIZE.length} words correctly in {recallTime?.toFixed(2)} seconds.</p>
               {analysis && (
                 <Alert>
                   <AlertTitle>Performance Analysis</AlertTitle>
