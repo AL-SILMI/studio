@@ -45,17 +45,14 @@ export async function analyzeSpeech(
   audioDataUri: string,
   transcript: string
 ): Promise<SpeechAnalysisResult> {
-  if (!audioDataUri) {
-     return { success: false, error: 'Audio data is missing.' };
-  }
-  if (!transcript) {
-    return { success: false, error: 'Transcript is missing.' };
+  if (!audioDataUri && !transcript) {
+     return { success: false, error: 'Audio data or transcript is missing.' };
   }
   
   try {
     const result = await analyzeSpeechForCognitiveDecline({
-      audioDataUri,
-      transcript,
+      audioDataUri: audioDataUri || '',
+      transcript: transcript || '',
     });
     return { success: true, data: result };
   } catch (error) {

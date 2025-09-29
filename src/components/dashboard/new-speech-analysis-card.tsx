@@ -147,10 +147,7 @@ export function NewSpeechAnalysisCard({
     setIsAnalyzing(true);
     setAnalysisResult(null);
 
-    const dummyAudioDataUri =
-      'data:audio/webm;base64,';
-
-    const response = await analyzeSpeech(dummyAudioDataUri, transcript);
+    const response = await analyzeSpeech('', transcript);
 
     if (response.success) {
       setAnalysisResult(response.data);

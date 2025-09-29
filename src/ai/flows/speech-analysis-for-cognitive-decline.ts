@@ -15,10 +15,11 @@ import wav from 'wav';
 const SpeechAnalysisForCognitiveDeclineInputSchema = z.object({
   audioDataUri: z
     .string()
+    .optional()
     .describe(
       "A recording of the user's speech as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
-  transcript: z.string().describe('The transcript of the user speech.'),
+  transcript: z.string().optional().describe('The transcript of the user speech.'),
 });
 export type SpeechAnalysisForCognitiveDeclineInput = z.infer<
   typeof SpeechAnalysisForCognitiveDeclineInputSchema
@@ -46,10 +47,16 @@ const prompt = ai.definePrompt({
   input: {schema: SpeechAnalysisForCognitiveDeclineInputSchema},
   output: {schema: SpeechAnalysisForCognitiveDeclineOutputSchema},
   prompt: `You are an expert in analyzing speech patterns for indicators of cognitive decline.
-First, transcribe the provided audio. Then, analyze the transcript for indicators of cognitive decline, such as pauses, word choice, and sentence structure. If a transcript is already provided, use that as the primary source.
 
+Your task is to analyze the provided information for indicators of cognitive decline, such as pauses, word choice, and sentence structure.
+
+{{#if audioDataUri}}
+First, transcribe the provided audio. Then, analyze the resulting transcript.
 Audio: {{media url=audioDataUri}}
+{{else}}
+Use the provided transcript as the primary source for your analysis.
 Transcript: {{{transcript}}}
+{{/if}}
 
 Based on your analysis, provide a detailed summary of any speech patterns that could indicate cognitive decline. Return the result in JSON format.`,
 });
